@@ -36,7 +36,7 @@
         • adb reboot
         ]]>
     </string>
-    <string name="dialog_scratch_mounted_title">OverlayFS가 마운트된 상태에서는 업데이트를 설치할 수 없습니다.</string>
+    <string name="dialog_scratch_mounted_title">OverlayFS 마운트 중 설치 불가</string>
     <string name="reboot">재부팅</string>
     <string name="menu_refresh">새로고침</string>
     <string name="menu_preferences">환경 설정</string>
@@ -108,7 +108,7 @@
     <string name="new_updates_channel_title">새 업데이트</string>
     <string name="ongoing_channel_title">진행 중인 다운로드</string>
     <string name="update_failed_channel_title">업데이트 실패</string>
-    <string name="info_dialog_title">알고 계셨습니까?</string>
+    <string name="info_dialog_title">알아두면 좋은 정보</string>
     <string name="info_dialog_message">Evolution X 업데이트는 전체 설치 패키지입니다. 중간에 일부 업데이트를 건너뛰었더라도 항상 최신 업데이트만 설치하면 됩니다.</string>
     <string name="info_dialog_ok">확인</string>
     <string name="local_update_import">로컬 업데이트</string>
