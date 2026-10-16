@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2021-2023 crDroid Android Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="maintainer_name">メンテナー: <xliff:g id="maintainer" example="Maintainer Name">%1$s</xliff:g></string>
+    <string name="support_forum">フォーラム</string>
+    <string name="support_firmware">ファームウェア</string>
+    <string name="support_donate">寄付</string>
+    <string name="pref_category_appearance">外観</string>
+    <string name="menu_show_logo">ロゴを表示</string>
+    <string name="menu_show_logo_summary">メイン画面に Evolution X のロゴを表示</string>
+    <string name="menu_show_updater_icon">アップデータのアイコンを表示</string>
+    <string name="menu_show_updater_icon_summary">上部バーにアップデータのアイコンを表示します。オフの場合は、代わりに Evolution X のロゴが表示されます</string>
+</resources>

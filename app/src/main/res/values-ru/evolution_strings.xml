@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2021-2023 crDroid Android Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="maintainer_name">Сопровождающий: <xliff:g id="maintainer" example="Maintainer Name">%1$s</xliff:g></string>
+    <string name="support_forum">Форум</string>
+    <string name="support_firmware">Прошивка</string>
+    <string name="support_donate">Пожертвовать</string>
+    <string name="pref_category_appearance">Оформление</string>
+    <string name="menu_show_logo">Показывать логотип</string>
+    <string name="menu_show_logo_summary">Показывать логотип Evolution X на главном экране</string>
+    <string name="menu_show_updater_icon">Показывать значок обновления</string>
+    <string name="menu_show_updater_icon_summary">Показывать значок обновления на верхней панели. Если параметр отключён, вместо него отображается логотип Evolution X</string>
+</resources>

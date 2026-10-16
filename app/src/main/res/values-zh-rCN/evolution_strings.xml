@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+     SPDX-FileCopyrightText: 2021-2023 crDroid Android Project
+     SPDX-License-Identifier: Apache-2.0
+-->
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="maintainer_name">维护者：<xliff:g id="maintainer" example="Maintainer Name">%1$s</xliff:g></string>
+    <string name="support_forum">论坛</string>
+    <string name="support_firmware">固件</string>
+    <string name="support_donate">捐赠</string>
+    <string name="pref_category_appearance">外观</string>
+    <string name="menu_show_logo">显示徽标</string>
+    <string name="menu_show_logo_summary">在主界面显示 Evolution X 徽标</string>
+    <string name="menu_show_updater_icon">显示系统更新图标</string>
+    <string name="menu_show_updater_icon_summary">在顶部栏显示系统更新图标。关闭后，将改为显示 Evolution X 徽标</string>
+</resources>
