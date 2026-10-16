@@ -14,18 +14,18 @@
     <string name="download_completed_notification">下载完成</string>
     <string name="download_starting_notification">正在开始下载</string>
     <string name="update_failed_notification">更新失败</string>
-    <string name="installation_suspended_notification">安装已挂起</string>
+    <string name="installation_suspended_notification">安装已暂停</string>
     <string name="new_updates_found_title">新的更新</string>
     <string name="text_download_speed">%1$s, %2$s/秒</string>
     <string name="pause_button">暂停</string>
     <string name="resume_button">继续</string>
-    <string name="suspend_button">挂起</string>
+    <string name="suspend_button">暂停</string>
     <string name="installing_update">正在安装更新包</string>
     <string name="installing_update_error">安装错误</string>
     <string name="installing_update_finished">更新已安装</string>
-    <string name="finalizing_package">正在完成包安装</string>
-    <string name="preparing_ota_first_boot">正在为第一次启动进行准备</string>
-    <string name="dialog_prepare_zip_message">预备更新准备</string>
+    <string name="finalizing_package">正在完成软件包安装</string>
+    <string name="preparing_ota_first_boot">正在准备首次启动</string>
+    <string name="dialog_prepare_zip_message">正在为更新做准备</string>
     <string name="dialog_battery_low_title">低电量</string>
     <string name="dialog_battery_low_message_pct">电量过低，您需要至少 <xliff:g id="percent_discharging">%1$d</xliff:g>%% 的电量才能继续；如果正在充电，则需要 <xliff:g id="percent_charging">%2$d</xliff:g>%% 的电量才能继续。</string>
     <string name="dialog_scratch_mounted_message"><![CDATA[        请运行以下命令来重新安装更新：\n
@@ -33,8 +33,8 @@
         • adb enable-verity\n
         • adb reboot
         ]]></string>
-    <string name="dialog_scratch_mounted_title">无法在使用OverlayFS挂载的情况下安装更新</string>
-    <string name="reboot">重新启动</string>
+    <string name="dialog_scratch_mounted_title">无法在已挂载 OverlayFS 的情况下安装更新</string>
+    <string name="reboot">重启</string>
     <string name="menu_refresh">刷新</string>
     <string name="menu_preferences">首选项</string>
     <string name="menu_auto_updates_check">自动检查更新</string>
@@ -47,25 +47,25 @@
     <string name="menu_copy_url">复制网址</string>
     <string name="menu_export_update">导出更新</string>
     <string name="menu_show_changelog">显示更新日志</string>
-    <string name="menu_ab_perf_mode">更新进程优先</string>
+    <string name="menu_ab_perf_mode">优先处理更新进程</string>
     <string name="menu_update_recovery">更新恢复模式</string>
-    <string name="toast_forced_update_recovery">在此设备上禁用 Evolution X 恢复更新是不可能的。</string>
+    <string name="toast_forced_update_recovery">无法在此设备上停用 Evolution X Recovery 更新。</string>
     <string name="snack_updates_found">找到新更新</string>
     <string name="snack_no_updates_found">没有找到新的更新</string>
-    <string name="snack_updates_check_failed">检查更新失败。 请您检查您的网络连接并稍后重试。</string>
-    <string name="snack_download_failed">下载更新失败。 请您检查您的网络连接并稍后重试。</string>
+    <string name="snack_updates_check_failed">检查更新失败。请检查网络连接，然后稍后重试。</string>
+    <string name="snack_download_failed">下载失败。请检查网络连接，然后稍后重试。</string>
     <string name="snack_download_verification_failed">验证更新失败。</string>
-    <string name="snack_download_verified">下载完毕。</string>
-    <string name="snack_update_not_installable">在当前的版本上无法安装更新。</string>
+    <string name="snack_download_verified">下载完成。</string>
+    <string name="snack_update_not_installable">无法在当前版本之上安装此更新。</string>
     <string name="header_title_text">Evolution X\n%1$s</string>
     <string name="header_android_version">Android <xliff:g id="version" example="7.1.2">%1$s</xliff:g></string>
-    <string name="header_last_updates_check">最后检查： <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> (<xliff:g id="time" example="01:23">%2$s</xliff:g>)</string>
+    <string name="header_last_updates_check">上次检查：<xliff:g id="date" example="1 January 1970">%1$s</xliff:g>（<xliff:g id="time" example="01:23">%2$s</xliff:g>）</string>
     <string name="list_build_version">Evolution X <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
     <string name="list_build_version_date">Evolution X <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
     <string name="list_download_progress_newer">已下载 <xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g>，共 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g></string>
     <string name="list_download_progress_eta_newer">已下载 <xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g>，共 <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> (<xliff:g id="eta" example="3 minutes left">%3$s</xliff:g>)</string>
     <string name="list_verifying_update">正在验证更新</string>
-    <string name="list_no_updates">未找到更新。要手动检查更新，请使用刷新按钮。</string>
+    <string name="list_no_updates">未找到新的更新。如需手动检查新更新，请使用“刷新”按钮。</string>
     <string name="action_download">下载</string>
     <string name="action_pause">暂停</string>
     <string name="action_resume">继续</string>
@@ -74,46 +74,50 @@
     <string name="action_delete">删除</string>
     <string name="action_cancel">取消</string>
     <string name="confirm_delete_dialog_title">删除文件</string>
-    <string name="confirm_delete_dialog_message">您确定要删除选择的更新文件？</string>
+    <string name="confirm_delete_dialog_message">要删除所选的更新文件吗？</string>
     <string name="apply_update_dialog_title">应用更新</string>
     <string name="apply_update_dialog_message">您将要安装 <xliff:g id="update_name">%1$s</xliff:g>。\n\n如果您按下<xliff:g id="ok">%2$s</xliff:g>，您的设备将会重启到恢复模式并安装更新。\n\n注意：此功能需要一个兼容的恢复程序，否则您将需要手动安装更新。</string>
-    <string name="apply_update_dialog_message_ab">您将要安装 <xliff:g id="update_name">%1$s</xliff:g>。\n\n如果您按下<xliff:g id="ok">%2$s</xliff:g>，设备将会在后台进行安装。\n\n当安装完毕后，将会提示您重新启动。</string>
-    <string name="cancel_installation_dialog_message">是否取消安装？</string>
+    <string name="apply_update_dialog_message_ab">您将要安装 <xliff:g id="update_name">%1$s</xliff:g>。\n\n如果您按下<xliff:g id="ok">%2$s</xliff:g>，设备将会在后台进行安装。\n\n当安装完毕后，将会提示您重启。</string>
+    <string name="cancel_installation_dialog_message">要取消安装吗？</string>
     <string name="label_download_url">下载地址</string>
     <string name="toast_download_url_copied">地址已复制</string>
     <string name="dialog_export_title">正在导出更新</string>
     <string name="notification_export_success">更新已导出</string>
     <string name="notification_export_fail">导出错误</string>
-    <string name="toast_already_exporting">已导出更新</string>
+    <string name="toast_already_exporting">已有更新正在导出</string>
     <string name="toast_export_started">导出已开始</string>
     <plurals name="eta_seconds">
         <item quantity="other">剩余 <xliff:g id="count">%d</xliff:g> 秒</item>
     </plurals>
     <plurals name="eta_minutes">
-        <item quantity="other">剩余 <xliff:g id="count">%d</xliff:g> 分</item>
+        <item quantity="other">剩余 <xliff:g id="count">%d</xliff:g> 分钟</item>
     </plurals>
     <plurals name="eta_hours">
-        <item quantity="other">剩余 <xliff:g id="count">%d</xliff:g> 时</item>
+        <item quantity="other">剩余 <xliff:g id="count">%d</xliff:g> 小时</item>
     </plurals>
     <string name="update_over_metered_network_title">警告</string>
-    <string name="update_over_metered_network_message">您将要通过移动数据网络下载更新包，这将会使用较大的数据用量。您确定要继续吗？</string>
+    <string name="update_over_metered_network_message">您即将通过按流量计费的网络下载更新包，可能会产生较高的流量消耗。要继续吗？</string>
     <string name="checkbox_metered_network_warning">不再显示</string>
     <string name="menu_metered_network_warning">按流量计费网络警告</string>
     <string name="blocked_update_dialog_title">更新已被阻止</string>
-    <string name="blocked_update_dialog_message">此更新无法经由此更新程序安装。请阅读 <xliff:g id="info_url">%1$s</xliff:g> 以了解更多信息。</string>
-    <string name="export_channel_title">导出已完成</string>
+    <string name="blocked_update_dialog_message">此更新无法通过更新应用安装。请阅读 <xliff:g id="info_url">%1$s</xliff:g> 了解详情。</string>
+    <string name="export_channel_title">导出完成</string>
     <string name="new_updates_channel_title">新的更新</string>
-    <string name="ongoing_channel_title">正在下载</string>
+    <string name="ongoing_channel_title">正在进行的下载</string>
     <string name="update_failed_channel_title">更新失败</string>
     <string name="info_dialog_title">您知道吗？</string>
-    <string name="info_dialog_message">Evolution X 更新包是完整的安装包。这意味着您总是可以跳过之前的系统更新，直接安装最新版本！</string>
-    <string name="info_dialog_ok">感谢您的反馈！</string>
+    <string name="info_dialog_message">Evolution X 更新包是完整的安装包，这意味着您始终可以只安装最新的更新，即使中间跳过了一些更新！</string>
+    <string name="info_dialog_ok">感谢告知！</string>
     <string name="local_update_import">本地更新</string>
     <string name="local_update_import_progress">正在导入本地更新\u2026</string>
-    <string name="local_update_import_success">%1$s 已经被导入，您想现在进行安装吗？</string>
+    <string name="local_update_import_success">%1$s 已导入。要现在安装吗？</string>
     <string name="local_update_import_failure">导入本地更新失败</string>
     <string name="local_update_import_install">安装</string>
     <string name="local_update_name">本地更新</string>
     <string name="welcome_title">欢迎</string>
     <string name="welcome_message">请注意，当有多个更新可用时，无需逐个更新，可以直接安装最新的更新，然后安全地删除旧的更新以释放存储空间。</string>
+    <string name="blocked_update_dialog_message_custom">无法使用更新应用安装此更新。请尝试通过恢复模式安装更新。</string>
+    <string name="maintainer_name">维护者：<xliff:g id="maintainer" example="Maintainer Name">%1$s</xliff:g></string>
+    <string name="support_links">支持链接：</string>
+    <string name="current_build_date">当前构建日期：<xliff:g id="build_date" example="Date">%1$s</xliff:g></string>
 </resources>
