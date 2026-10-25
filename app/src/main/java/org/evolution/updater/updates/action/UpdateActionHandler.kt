@@ -43,17 +43,17 @@ class UpdateActionHandler(
         when (action.type) {
             UpdateActionType.START_DOWNLOAD -> runWithActiveDownloadWarning(update) {
                 runDownloadWithMeteredWarning {
-                    updaterController.startDownload(downloadId)
+                    startDownload(downloadId, resume = false)
                 }
             }
 
             UpdateActionType.PAUSE_DOWNLOAD -> updaterController.pauseDownload(downloadId)
             UpdateActionType.RESUME_DOWNLOAD -> runWithActiveDownloadWarning(update) {
                 if (updaterController.isFullyDownloaded(update)) {
-                    updaterController.resumeDownload(downloadId)
+                    startDownload(downloadId, resume = true)
                 } else {
                     runDownloadWithMeteredWarning {
-                        updaterController.resumeDownload(downloadId)
+                        startDownload(downloadId, resume = true)
                     }
                 }
             }
@@ -268,6 +268,16 @@ class UpdateActionHandler(
                 showDismiss = true,
             )
         )
+    }
+
+    private fun startDownload(downloadId: String, resume: Boolean) {
+        // Start persistent work only from the visible UI action, after its warnings.
+        activity.startService(Intent(activity, UpdaterService::class.java))
+        if (resume) {
+            updaterController.resumeDownload(downloadId)
+        } else {
+            updaterController.startDownload(downloadId)
+        }
     }
 
     private fun startInstallService(intentAction: String) {

@@ -33,6 +33,7 @@ import java.util.Objects;
 public class UpdatesActivity extends UpdatesScaffoldActivity implements UpdateImporter.Callbacks {
 
     private UpdaterService mUpdaterService;
+    private boolean mServiceBound;
     private BroadcastReceiver mBroadcastReceiver;
 
     private UpdatesViewModel mViewModel;
@@ -84,8 +85,7 @@ public class UpdatesActivity extends UpdatesScaffoldActivity implements UpdateIm
     public void onStart() {
         super.onStart();
         Intent intent = new Intent(this, UpdaterService.class);
-        startService(intent);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        mServiceBound = bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(UpdaterController.ACTION_UPDATE_STATUS);
@@ -108,9 +108,12 @@ public class UpdatesActivity extends UpdatesScaffoldActivity implements UpdateIm
     @Override
     public void onStop() {
         unregisterReceiver(mBroadcastReceiver);
-        if (mUpdaterService != null) {
+        if (mServiceBound) {
             unbindService(mConnection);
+            mServiceBound = false;
         }
+        setUpdaterController(null);
+        mUpdaterService = null;
         super.onStop();
     }
 
