@@ -252,8 +252,7 @@ public class UpdaterService extends Service {
     }
 
     private void tryStopSelf() {
-        if (!mHasClients && !mUpdaterController.hasActiveDownloads() &&
-                !mUpdaterController.isInstallingUpdate()) {
+        if (!mHasClients && !mUpdaterController.isBusy()) {
             Log.d(TAG, "Service no longer needed, stopping");
             stopSelf();
         }
@@ -355,7 +354,9 @@ public class UpdaterService extends Service {
                 String text = getString(R.string.verifying_download_notification);
                 mNotificationStyle.bigText(text);
                 mNotificationBuilder.setTicker(text);
-                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                mNotificationBuilder.setOngoing(true);
+                startForeground(NOTIFICATION_ID, mNotificationBuilder.build(),
+                        ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
                 break;
             }
             case VERIFIED: {
