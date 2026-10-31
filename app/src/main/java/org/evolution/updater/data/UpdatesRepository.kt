@@ -120,7 +120,13 @@ class UpdatesRepository(
         System.currentTimeMillis()
     }
 
-    private fun isShown(update: Update): Boolean = filterUpdates(update)
+    // Imported packages stay listed, with their blocked reason, until they are the running build.
+    private fun isShown(update: Update): Boolean =
+        if (update.downloadId == Update.LOCAL_ID) {
+            update.timestamp != DeviceInfoUtils.buildDateTimestamp
+        } else {
+            filterUpdates(update)
+        }
 
     private fun filterUpdates(update: Update): Boolean {
         val isCurrentBuild = update.timestamp == DeviceInfoUtils.buildDateTimestamp
