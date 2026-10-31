@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
 
 public class UpdaterController {
 
@@ -52,6 +53,7 @@ public class UpdaterController {
 
     private int mActiveDownloads = 0;
     private final Set<String> mVerifyingUpdates = new HashSet<>();
+    private final CountDownLatch mUpdatesLoaded = new CountDownLatch(1);
 
     public static synchronized UpdaterController getInstance(Context context) {
         if (sUpdaterController == null) {
@@ -73,11 +75,23 @@ public class UpdaterController {
         mContext = context.getApplicationContext();
 
         new Thread(() -> {
-            Utils.cleanupDownloadsDir(context, userPreferencesRepository);
-            for (Update update : mUpdatesLocalDataSource.getUpdates()) {
-                addUpdate(update, false);
+            try {
+                Utils.cleanupDownloadsDir(context, userPreferencesRepository);
+                for (Update update : mUpdatesLocalDataSource.getUpdates()) {
+                    addUpdate(update, false);
+                }
+            } finally {
+                mUpdatesLoaded.countDown();
             }
         }).start();
+    }
+
+    /**
+     * Waits until the updates stored in the database are loaded. Do not call this on the
+     * main thread.
+     */
+    public void awaitUpdatesLoaded() throws InterruptedException {
+        mUpdatesLoaded.await();
     }
 
     private static class DownloadEntry {
