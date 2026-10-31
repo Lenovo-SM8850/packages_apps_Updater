@@ -168,8 +168,11 @@ public class UpdaterService extends Service {
             }
         } else if (ACTION_POST_REBOOT_CLEANUP.equals(intent.getAction())) {
             String downloadId = intent.getStringExtra(EXTRA_DOWNLOAD_ID);
-            handlePostRebootCleanup(downloadId);
-            tryStopSelf();
+            // A boot-time start finds the stored updates still loading.
+            new Thread(() -> {
+                handlePostRebootCleanup(downloadId);
+                getMainExecutor().execute(this::tryStopSelf);
+            }).start();
         } else if (ACTION_DOWNLOAD_CONTROL.equals(intent.getAction())) {
             String downloadId = intent.getStringExtra(EXTRA_DOWNLOAD_ID);
             int action = intent.getIntExtra(EXTRA_DOWNLOAD_CONTROL, -1);
@@ -554,6 +557,13 @@ public class UpdaterService extends Service {
 
     private void handlePostRebootCleanup(String downloadId) {
         if (downloadId == null) {
+            return;
+        }
+
+        try {
+            mUpdaterController.awaitUpdatesLoaded();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             return;
         }
 
