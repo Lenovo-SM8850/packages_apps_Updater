@@ -51,6 +51,10 @@ class NotificationHelper(context: Context) {
         )
     }
 
+    fun cancelNewUpdatesNotification() {
+        notificationManager.cancel(ID_NEW_UPDATES)
+    }
+
     fun showNewUpdatesNotification() {
         val intent = PendingIntent.getActivity(
             appContext, 0,

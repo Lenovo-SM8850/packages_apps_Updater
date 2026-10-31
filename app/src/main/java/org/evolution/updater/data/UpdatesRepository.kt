@@ -8,6 +8,10 @@ package org.evolution.updater.data
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerializationException
 import org.evolution.updater.data.source.local.UpdatesLocalDataSource
@@ -30,7 +34,29 @@ class UpdatesRepository(
     private val systemUpdateInfoPublisher: SystemUpdateInfoPublisher,
     private val appStateRepository: AppStateRepository,
 ) {
+    private val mutex = Mutex()
+
     fun observeLocalUpdates(): Flow<List<Update>> = localDataSource.observeUpdates()
+        .map { updates -> updates.filter { isShown(it) } }
+        .flowOn(Dispatchers.IO)
+
+    suspend fun removeObsoleteUpdates() = mutex.withLock {
+        removeObsoleteUpdatesLocked()
+        systemUpdateInfoPublisher.publish()
+    }
+
+    private suspend fun removeObsoleteUpdatesLocked(): List<Update> = withContext(Dispatchers.IO) {
+        val updates = localDataSource.getUpdates()
+        val (available, obsolete) = updates.partition { isShown(it) }
+        obsolete.forEach {
+            if (it.downloadId != Update.LOCAL_ID) it.file?.delete()
+            localDataSource.removeUpdate(it.downloadId)
+        }
+        if (available.none { it.downloadId != Update.LOCAL_ID }) {
+            notificationHelper.cancelNewUpdatesNotification()
+        }
+        available
+    }
 
     /**
      * Fetches available updates from the server, syncs the local database, and posts a
@@ -41,20 +67,11 @@ class UpdatesRepository(
      * @throws IOException on network or HTTP errors.
      * @throws SerializationException if the response cannot be parsed.
      */
-    suspend fun fetchUpdates(): Long? {
-        if (!networkMonitor.currentNetworkState.isOnline) return null
-
-        val localUpdates = withContext(Dispatchers.IO) {
-            localDataSource.getUpdates()
-        }.associateBy { it.downloadId }
-
-        withContext(Dispatchers.IO) {
-            localUpdates.values.filter {
-                it.downloadId != Update.LOCAL_ID && !filterUpdates(it)
-            }.forEach {
-                it.file?.delete()
-                localDataSource.removeUpdate(it.downloadId)
-            }
+    suspend fun fetchUpdates(): Long? = mutex.withLock {
+        val localUpdates = removeObsoleteUpdatesLocked().associateBy { it.downloadId }
+        if (!networkMonitor.currentNetworkState.isOnline) {
+            systemUpdateInfoPublisher.publish()
+            return@withLock null
         }
 
         val networkResponse = withContext(Dispatchers.IO) {
@@ -67,7 +84,7 @@ class UpdatesRepository(
 
         if (networkUpdates.isEmpty()) {
             systemUpdateInfoPublisher.publish()
-            return System.currentTimeMillis()
+            return@withLock System.currentTimeMillis()
         }
 
         val networkIds = networkUpdates.map { it.downloadId }.toSet()
@@ -100,8 +117,10 @@ class UpdatesRepository(
         }
         systemUpdateInfoPublisher.publish()
 
-        return System.currentTimeMillis()
+        System.currentTimeMillis()
     }
+
+    private fun isShown(update: Update): Boolean = filterUpdates(update)
 
     private fun filterUpdates(update: Update): Boolean {
         val isCurrentBuild = update.timestamp == DeviceInfoUtils.buildDateTimestamp
