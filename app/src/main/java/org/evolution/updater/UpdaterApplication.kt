@@ -6,10 +6,13 @@
 package org.evolution.updater
 
 import android.app.Application
+import android.util.Log
 import com.android.settingslib.spa.framework.common.SettingsPageProviderRepository
 import com.android.settingslib.spa.framework.common.SpaEnvironment
 import com.android.settingslib.spa.framework.common.SpaEnvironmentFactory
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.launch
 import org.evolution.updater.data.AppStateRepository
 import org.evolution.updater.data.ChangelogRepository
 import org.evolution.updater.data.UpdatesRepository
@@ -54,6 +57,15 @@ class UpdaterApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         notificationHelper.setUpNotificationChannels()
+        coroutineScope.launch {
+            try {
+                updatesRepository.removeObsoleteUpdates()
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                Log.e("UpdaterApplication", "Failed to remove obsolete updates", e)
+            }
+        }
         SpaEnvironmentFactory.reset(object : SpaEnvironment(applicationContext) {
             override val pageProviderRepository = lazy {
                 SettingsPageProviderRepository(emptyList())
