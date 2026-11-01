@@ -61,7 +61,7 @@ public class UpdaterService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private boolean mHasClients;
-    private int mPendingCleanups;
+    private int mPendingActions;
 
     private BroadcastReceiver mBroadcastReceiver;
     private NotificationCompat.Builder mNotificationBuilder;
@@ -170,7 +170,7 @@ public class UpdaterService extends Service {
         } else if (ACTION_POST_REBOOT_CLEANUP.equals(intent.getAction())) {
             String downloadId = intent.getStringExtra(EXTRA_DOWNLOAD_ID);
             if (downloadId != null) {
-                mPendingCleanups++;
+                mPendingActions++;
                 // A boot-time start finds the stored updates still loading. Wait for them off
                 // the main thread, then clean up in order with the other service actions.
                 new Thread(() -> {
@@ -178,7 +178,7 @@ public class UpdaterService extends Service {
                     boolean deleteUpdate =
                             loaded && mUserPreferencesRepository.getAutoDeleteBlocking();
                     getMainExecutor().execute(() -> {
-                        mPendingCleanups--;
+                        mPendingActions--;
                         if (loaded) {
                             handlePostRebootCleanup(downloadId, deleteUpdate);
                         }
@@ -242,24 +242,30 @@ public class UpdaterService extends Service {
                         mUpdaterController);
                 installer.cancel();
             } else if (ABUpdateInstaller.isInstallingUpdate(this)) {
-                ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                        mUpdaterController, mUserPreferencesRepository);
-                installer.reconnect();
-                installer.cancel();
+                runAfterUpdatesLoaded(() -> {
+                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
+                            mUpdaterController, mUserPreferencesRepository);
+                    installer.reconnect();
+                    installer.cancel();
+                });
             }
         } else if (ACTION_INSTALL_SUSPEND.equals(intent.getAction())) {
             if (ABUpdateInstaller.isInstallingUpdate(this)) {
-                ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                        mUpdaterController, mUserPreferencesRepository);
-                installer.reconnect();
-                installer.suspend();
+                runAfterUpdatesLoaded(() -> {
+                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
+                            mUpdaterController, mUserPreferencesRepository);
+                    installer.reconnect();
+                    installer.suspend();
+                });
             }
         } else if (ACTION_INSTALL_RESUME.equals(intent.getAction())) {
             if (ABUpdateInstaller.isInstallingUpdateSuspended(this)) {
-                ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                        mUpdaterController, mUserPreferencesRepository);
-                installer.reconnect();
-                installer.resume();
+                runAfterUpdatesLoaded(() -> {
+                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
+                            mUpdaterController, mUserPreferencesRepository);
+                    installer.reconnect();
+                    installer.resume();
+                });
             }
         }
         return ABUpdateInstaller.isInstallingUpdate(this) ? START_STICKY : START_NOT_STICKY;
@@ -270,7 +276,7 @@ public class UpdaterService extends Service {
     }
 
     private void tryStopSelf() {
-        if (!mHasClients && mPendingCleanups == 0 && !mUpdaterController.isBusy()) {
+        if (!mHasClients && mPendingActions == 0 && !mUpdaterController.isBusy()) {
             Log.d(TAG, "Service no longer needed, stopping");
             stopSelf();
         }
@@ -568,6 +574,24 @@ public class UpdaterService extends Service {
         intent.setAction(ACTION_INSTALL_RESUME);
         return PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    /**
+     * Runs an install control on the main thread once the stored updates have loaded. A restarted
+     * process loads them asynchronously, and the controls look up the update being installed.
+     */
+    private void runAfterUpdatesLoaded(Runnable action) {
+        mPendingActions++;
+        new Thread(() -> {
+            boolean loaded = awaitUpdatesLoaded();
+            getMainExecutor().execute(() -> {
+                mPendingActions--;
+                if (loaded) {
+                    action.run();
+                }
+                tryStopSelf();
+            });
+        }).start();
     }
 
     private boolean awaitUpdatesLoaded() {
