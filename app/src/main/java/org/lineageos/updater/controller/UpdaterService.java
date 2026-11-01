@@ -242,24 +242,30 @@ public class UpdaterService extends Service {
                         mUpdaterController);
                 installer.cancel();
             } else if (ABUpdateInstaller.isInstallingUpdate(this)) {
-                ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                        mUpdaterController, mUserPreferencesRepository);
-                installer.reconnect();
-                installer.cancel();
+                runAfterUpdatesLoaded(() -> {
+                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
+                            mUpdaterController, mUserPreferencesRepository);
+                    installer.reconnect();
+                    installer.cancel();
+                });
             }
         } else if (ACTION_INSTALL_SUSPEND.equals(intent.getAction())) {
             if (ABUpdateInstaller.isInstallingUpdate(this)) {
-                ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                        mUpdaterController, mUserPreferencesRepository);
-                installer.reconnect();
-                installer.suspend();
+                runAfterUpdatesLoaded(() -> {
+                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
+                            mUpdaterController, mUserPreferencesRepository);
+                    installer.reconnect();
+                    installer.suspend();
+                });
             }
         } else if (ACTION_INSTALL_RESUME.equals(intent.getAction())) {
             if (ABUpdateInstaller.isInstallingUpdateSuspended(this)) {
-                ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
-                        mUpdaterController, mUserPreferencesRepository);
-                installer.reconnect();
-                installer.resume();
+                runAfterUpdatesLoaded(() -> {
+                    ABUpdateInstaller installer = ABUpdateInstaller.getInstance(this,
+                            mUpdaterController, mUserPreferencesRepository);
+                    installer.reconnect();
+                    installer.resume();
+                });
             }
         }
         return ABUpdateInstaller.isInstallingUpdate(this) ? START_STICKY : START_NOT_STICKY;
@@ -568,6 +574,24 @@ public class UpdaterService extends Service {
         intent.setAction(ACTION_INSTALL_RESUME);
         return PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    /**
+     * Runs an install control on the main thread once the stored updates have loaded. A restarted
+     * process loads them asynchronously, and the controls look up the update being installed.
+     */
+    private void runAfterUpdatesLoaded(Runnable action) {
+        mPendingActions++;
+        new Thread(() -> {
+            boolean loaded = awaitUpdatesLoaded();
+            getMainExecutor().execute(() -> {
+                mPendingActions--;
+                if (loaded) {
+                    action.run();
+                }
+                tryStopSelf();
+            });
+        }).start();
     }
 
     private boolean awaitUpdatesLoaded() {
