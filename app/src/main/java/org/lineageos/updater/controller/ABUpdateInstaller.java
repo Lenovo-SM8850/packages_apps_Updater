@@ -57,7 +57,7 @@ class ABUpdateInstaller {
 
         @Override
         public void onStatusUpdate(int status, float percent) {
-            Update update = mUpdaterController.getUpdate(mDownloadId);
+            Update update = getInstallingUpdate();
             if (update == null) {
                 // We read the id from a preference, the update could no longer exist
                 installationDone(status == UpdateEngine.UpdateStatusConstants.UPDATED_NEED_REBOOT);
@@ -116,6 +116,22 @@ class ABUpdateInstaller {
             }
         }
     };
+
+    /**
+     * Returns the update being installed. Status callbacks arrive on a binder thread, and after a
+     * reconnect they can arrive before the stored updates have loaded, so wait for them first.
+     */
+    private Update getInstallingUpdate() {
+        if (mDownloadId == null) {
+            return null;
+        }
+        try {
+            mUpdaterController.awaitUpdatesLoaded();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return mUpdaterController.getUpdate(mDownloadId);
+    }
 
     static synchronized boolean isInstallingUpdate(Context context) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -309,8 +325,10 @@ class ABUpdateInstaller {
             return;
         }
 
-        mDownloadId = PreferenceManager.getDefaultSharedPreferences(mContext)
-                .getString(PREF_INSTALLING_AB_ID, null);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        // An installation that only waits for the reboot keeps just the reboot marker.
+        mDownloadId = preferences.getString(PREF_INSTALLING_AB_ID,
+                preferences.getString(Constants.PREF_NEEDS_REBOOT_ID, null));
 
         // We will get a status notification as soon as we are connected
         mBound = mUpdateEngine.bind(mUpdateEngineCallback);
