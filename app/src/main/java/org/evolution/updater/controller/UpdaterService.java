@@ -61,6 +61,7 @@ public class UpdaterService extends Service {
 
     private final IBinder mBinder = new LocalBinder();
     private boolean mHasClients;
+    private int mPendingCleanups;
 
     private BroadcastReceiver mBroadcastReceiver;
     private NotificationCompat.Builder mNotificationBuilder;
@@ -168,11 +169,25 @@ public class UpdaterService extends Service {
             }
         } else if (ACTION_POST_REBOOT_CLEANUP.equals(intent.getAction())) {
             String downloadId = intent.getStringExtra(EXTRA_DOWNLOAD_ID);
-            // A boot-time start finds the stored updates still loading.
-            new Thread(() -> {
-                handlePostRebootCleanup(downloadId);
-                getMainExecutor().execute(this::tryStopSelf);
-            }).start();
+            if (downloadId != null) {
+                mPendingCleanups++;
+                // A boot-time start finds the stored updates still loading. Wait for them off
+                // the main thread, then clean up in order with the other service actions.
+                new Thread(() -> {
+                    boolean loaded = awaitUpdatesLoaded();
+                    boolean deleteUpdate =
+                            loaded && mUserPreferencesRepository.getAutoDeleteBlocking();
+                    getMainExecutor().execute(() -> {
+                        mPendingCleanups--;
+                        if (loaded) {
+                            handlePostRebootCleanup(downloadId, deleteUpdate);
+                        }
+                        tryStopSelf();
+                    });
+                }).start();
+            } else {
+                tryStopSelf();
+            }
         } else if (ACTION_DOWNLOAD_CONTROL.equals(intent.getAction())) {
             String downloadId = intent.getStringExtra(EXTRA_DOWNLOAD_ID);
             int action = intent.getIntExtra(EXTRA_DOWNLOAD_CONTROL, -1);
@@ -255,7 +270,7 @@ public class UpdaterService extends Service {
     }
 
     private void tryStopSelf() {
-        if (!mHasClients && !mUpdaterController.isBusy()) {
+        if (!mHasClients && mPendingCleanups == 0 && !mUpdaterController.isBusy()) {
             Log.d(TAG, "Service no longer needed, stopping");
             stopSelf();
         }
@@ -555,18 +570,17 @@ public class UpdaterService extends Service {
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
     }
 
-    private void handlePostRebootCleanup(String downloadId) {
-        if (downloadId == null) {
-            return;
-        }
-
+    private boolean awaitUpdatesLoaded() {
         try {
             mUpdaterController.awaitUpdatesLoaded();
+            return true;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            return;
+            return false;
         }
+    }
 
+    private void handlePostRebootCleanup(String downloadId, boolean deleteUpdate) {
         Update update = mUpdaterController.getUpdate(downloadId);
         if (update == null) {
             Log.w(TAG, "Update not found during post-reboot cleanup: " + downloadId);
@@ -574,8 +588,6 @@ public class UpdaterService extends Service {
         }
 
         Log.d(TAG, "Post-reboot cleanup for: " + downloadId);
-
-        boolean deleteUpdate = mUserPreferencesRepository.getAutoDeleteBlocking();
 
         // Always delete local updates
         boolean isLocal = Update.LOCAL_ID.equals(downloadId);
