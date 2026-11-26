@@ -129,6 +129,12 @@ public class UpdaterService extends Service {
         intentFilter.addAction(UpdaterController.ACTION_UPDATE_REMOVED);
         registerReceiver(mBroadcastReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
 
+        // A stored install marker outlives a crashed service process. Ask update_engine for its
+        // real status so a finished or abandoned install stops blocking new ones.
+        if (ABUpdateInstaller.isInstallingUpdate(this)) {
+            Log.d(TAG, "Reconnecting to stored install");
+            ABUpdateInstaller.getInstance(this, mUpdaterController).reconnect();
+        }
     }
 
     @Override
