@@ -207,6 +207,15 @@ public class UpdaterService extends Service {
                 Log.e(TAG, "Update not found: " + downloadId);
                 return START_NOT_STICKY;
             }
+            if (mUpdaterController.isInstallingUpdate(downloadId) ||
+                    ABUpdateInstaller.isInstallingUpdateSuspended(this) ||
+                    update.getStatus() == UpdateStatus.INSTALLING ||
+                    update.getStatus() == UpdateStatus.INSTALLATION_SUSPENDED ||
+                    update.getStatus() == UpdateStatus.UPDATED_NEED_REBOOT) {
+                Log.w(TAG, "Install already in progress, ignoring: " + downloadId);
+                return ABUpdateInstaller.isInstallingUpdate(this) ?
+                        START_STICKY : START_NOT_STICKY;
+            }
             if (!InstallUtils.canInstall(update)) {
                 Log.e(TAG, "Update blocked: " + downloadId);
                 return START_NOT_STICKY;
@@ -214,7 +223,11 @@ public class UpdaterService extends Service {
             boolean canStreamUpdate = InstallUtils.canStreamUpdate(update,
                     mUserPreferencesRepository.getStreamUpdatesBlocking());
             if (!canStreamUpdate && !update.getStatus().hasVerifiedPackage()) {
-                throw new IllegalArgumentException(update.getDownloadId() + " is not verified");
+                Log.e(TAG, update.getDownloadId() + " is not verified");
+                mUpdaterController.setUpdate(downloadId,
+                        update.withStatus(UpdateStatus.VERIFICATION_FAILED));
+                mUpdaterController.notifyUpdateChange(downloadId);
+                return START_NOT_STICKY;
             }
             try {
                 if (canStreamUpdate || new OtaMetadataParser(update.getFile()).isABUpdate()) {
