@@ -120,10 +120,10 @@ class UpdatesRepository(
         System.currentTimeMillis()
     }
 
-    // Imported packages stay listed, with their blocked reason, until they are the running build.
+    // Imported packages stay listed, with their blocked reason, whatever their timestamp.
     private fun isShown(update: Update): Boolean =
         if (update.downloadId == Update.LOCAL_ID) {
-            update.timestamp != DeviceInfoUtils.buildDateTimestamp
+            true
         } else {
             filterUpdates(update)
         }
